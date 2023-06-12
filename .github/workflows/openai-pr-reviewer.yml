@@ -1,21 +1,20 @@
-name: Robin AI Reviewer
+name: OpenAI Code Review
 
 on:
   pull_request:
-    types: [created]
+    types: [opened, synchronize]
 
 jobs:
-  build:
+  review:
+    permissions: write-all # Check permission when leave comment action failed
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
-      - name: Robin AI Reviewer
-        uses: Integral-Healthcare/robin-ai-reviewer@v1.2.0
-        with:
+      - name: OpenAI PR Review
+        uses: detectiveCrow/ai-review-action@latest
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
-          files_to_ignore: |
-            "README.md"
-            "assets/*"
-            "package-lock.json"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGUAGE: "korean"
+          MODEL: "gpt-3.5-turbo"
