@@ -1,30 +1,21 @@
-name: Code Review
-
-permissions:
-  contents: read
-  pull-requests: write
+name: Robin AI Reviewer
 
 on:
   pull_request:
-  pull_request_review_comment:
-    types: [created]
-
-concurrency:
-  group:
-    ${{ github.repository }}-${{ github.event.number || github.head_ref ||
-    github.sha }}-${{ github.workflow }}-${{ github.event_name ==
-    'pull_request_review_comment' && 'pr_comment' || 'pr' }}
-  cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
+    types: [ready_for_review]
 
 jobs:
-  review:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: fluxninja/openai-pr-reviewer@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Robin AI Reviewer
+        uses: Integral-Healthcare/robin-ai-reviewer@v1.2.0
         with:
-          debug: true
-          review_simple_changes: true
-          review_comment_lgtm: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
+          files_to_ignore: |
+            "README.md"
+            "assets/*"
+            "package-lock.json"
